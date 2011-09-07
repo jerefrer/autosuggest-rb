@@ -68,6 +68,18 @@ module Autosuggest
         assert_equal json_response.first["name"], "Tag: Chicken"
         assert_equal json_response.last["name"], "Tag: Chinese"
       end
+
+      should "be able to use class_name for use with acts_as_taggable_on contexts" do
+        RecipesController.autosuggest(:my_custom_tag_context, :name)
+        @controller.class_eval do
+          autosuggest :my_custom_tag_context, :name, :class_name => "Tag"
+        end
+
+        get :autosuggest_my_custom_tag_context_name, :query => 'Ch'
+        json_response = JSON.parse(@response.body)
+        assert_equal json_response.first["name"], "Chicken"
+        assert_equal json_response.last["name"], "Chinese"
+      end
     end
   end
 end

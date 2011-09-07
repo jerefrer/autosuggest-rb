@@ -12,9 +12,12 @@ module Autosuggest
       options[:limit]       ||= 10
       options[:name]          = name
 
+      # allow specifying fully qualified class name for model object
+      class_name = options[:class_name] || object
+
       define_method "autosuggest_#{object}_#{name}" do
-        options.merge!(:query => params[:query], :object => objectify(object), :like_clause => resolve_like_clause)
-        results = db_store(object).query(options)
+        options.merge!(:query => params[:query], :object => objectify(class_name), :like_clause => resolve_like_clause)
+        results = db_store(class_name).query(options)
         render :json => Yajl::Encoder.encode(results.map{|r| {:name => r.send(options[:display]), :value => r.id.to_s}})
       end
     end
